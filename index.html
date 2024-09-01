@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Herkenning</title>
     <style>
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -26,6 +28,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 </head>
+
 <body>
     <video id="video" autoplay playsinline></video>
 
@@ -52,11 +55,12 @@
         let model;
 
         async function loadModel() {
-            console.log('Model laden...');
-            model = await tf.loadGraphModel('https://tfhub.dev/tensorflow/ssd_mobilenet_v2/1/default/1');
+            console.log('Model lokaal laden...');
+            model = await tf.loadGraphModel('TenserflowModel/model.json');
             console.log('Model geladen!');
             detectObjects();
         }
+
 
         async function detectObjects() {
             const videoElement = document.getElementById('video');
@@ -82,4 +86,5 @@
         });
     </script>
 </body>
+
 </html>
