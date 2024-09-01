@@ -34,6 +34,7 @@
 
     <script>
         const video = document.getElementById('video');
+        let framecounter = 0;
 
         function startCamera() {
             const constraints = {
@@ -62,23 +63,29 @@
         }
 
 
+
         async function detectObjects() {
             const videoElement = document.getElementById('video');
 
-            // Zorg ervoor dat de video-feed geladen is voordat we de objectdetectie starten
             if (videoElement.readyState >= 2) {
-                const imgTensor = tf.browser.fromPixels(videoElement).expandDims(0);
+                frameCounter++;
 
-                // Voer objectdetectie uit
-                const predictions = await model.executeAsync(imgTensor);
+                // Voer de detectie alleen uit als frameCounter een veelvoud van 10 is
+                if (frameCounter % 10 === 0) {
+                    const imgTensor = tf.browser.fromPixels(videoElement).expandDims(0);
+                    const predictions = await model.executeAsync(imgTensor);
 
-                console.log(predictions); // Bekijk de gedetecteerde objecten in de console
+                    console.log(predictions); // Inspecteer de voorspellingen
 
-                requestAnimationFrame(detectObjects); // Herhaal de detectie in een loop
-            } else {
-                requestAnimationFrame(detectObjects); // Wacht op de video-feed als deze nog niet geladen is
+                    // Reset frameCounter indien nodig om overlopen te voorkomen
+                    if (frameCounter > 10000) {
+                        frameCounter = 0;
+                    }
+                }
             }
+            requestAnimationFrame(detectObjects); // Blijf de detectie in een loop uitvoeren
         }
+
 
         window.addEventListener('load', () => {
             startCamera();
