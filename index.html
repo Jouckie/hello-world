@@ -86,14 +86,14 @@
                     const imgTensor = tf.browser.fromPixels(videoElement).expandDims(0);
                     const predictions = await model.executeAsync(imgTensor);
 
-                    console.log(predictions); // Inspecteer de voorspellingen
+                    console.log('Voorspellingen:', predictions); // Log alle voorspellingen
 
                     // Wis het canvas voor de volgende frame
                     context.clearRect(0, 0, canvas.width, canvas.height);
 
                     // Teken rechthoeken om de gedetecteerde objecten
                     predictions[0].dataSync().forEach((score, index) => {
-                        if (score > 0.5) {  // Stel een drempelwaarde in voor detectie
+                        if (score > 0.2) {  // Drempel verlaagd naar 0.2
                             const bbox = predictions[1].dataSync().slice(index * 4, (index + 1) * 4);
                             const [yMin, xMin, yMax, xMax] = bbox;
 
