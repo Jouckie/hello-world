@@ -19,7 +19,9 @@
             background-color: #000;
         }
 
-        video {
+        video,
+        canvas {
+            position: absolute;
             width: 100%;
             height: auto;
             max-width: 100%;
@@ -31,9 +33,12 @@
 
 <body>
     <video id="video" autoplay playsinline></video>
+    <canvas id="overlay"></canvas>
 
     <script>
         const video = document.getElementById('video');
+        const canvas = document.getElementById('overlay');
+        const context = canvas.getContext('2d');
         let frameCounter = 0;
 
         function startCamera() {
@@ -46,11 +51,19 @@
             navigator.mediaDevices.getUserMedia(constraints)
                 .then(stream => {
                     video.srcObject = stream;
+                    video.addEventListener('loadeddata', () => {
+                        resizeCanvas();
+                    });
                 })
                 .catch(err => {
                     console.error("Fout bij het openen van de camera: ", err);
                     alert("Er is een probleem met de toegang tot de camera.");
                 });
+        }
+
+        function resizeCanvas() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
         }
 
         let model;
@@ -62,20 +75,40 @@
             detectObjects();
         }
 
-
-
         async function detectObjects() {
             const videoElement = document.getElementById('video');
 
             if (videoElement.readyState >= 2) {
                 frameCounter++;
 
-                // Voer de detectie alleen uit als frameCounter een veelvoud van 50
+                // Voer de detectie alleen uit als frameCounter een veelvoud van 50 is
                 if (frameCounter % 50 === 0) {
                     const imgTensor = tf.browser.fromPixels(videoElement).expandDims(0);
                     const predictions = await model.executeAsync(imgTensor);
 
                     console.log(predictions); // Inspecteer de voorspellingen
+
+                    // Wis het canvas voor de volgende frame
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Teken rechthoeken om de gedetecteerde objecten
+                    predictions[0].dataSync().forEach((score, index) => {
+                        if (score > 0.5) {  // Stel een drempelwaarde in voor detectie
+                            const bbox = predictions[1].dataSync().slice(index * 4, (index + 1) * 4);
+                            const [yMin, xMin, yMax, xMax] = bbox;
+
+                            // Bereken de coördinaten voor de rechthoek
+                            const x = xMin * canvas.width;
+                            const y = yMin * canvas.height;
+                            const width = (xMax - xMin) * canvas.width;
+                            const height = (yMax - yMin) * canvas.height;
+
+                            // Teken de rechthoek
+                            context.strokeStyle = 'red';
+                            context.lineWidth = 4;
+                            context.strokeRect(x, y, width, height);
+                        }
+                    });
 
                     // Reset frameCounter indien nodig om overlopen te voorkomen
                     if (frameCounter > 10000) {
@@ -85,7 +118,6 @@
             }
             requestAnimationFrame(detectObjects); // Blijf de detectie in een loop uitvoeren
         }
-
 
         window.addEventListener('load', () => {
             startCamera();
