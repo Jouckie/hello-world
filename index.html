@@ -34,7 +34,7 @@
 
     <script>
         const video = document.getElementById('video');
-        let framecounter = 0;
+        let frameCounter = 0;
 
         function startCamera() {
             const constraints = {
@@ -70,8 +70,8 @@
             if (videoElement.readyState >= 2) {
                 frameCounter++;
 
-                // Voer de detectie alleen uit als frameCounter een veelvoud van 10 is
-                if (frameCounter % 10 === 0) {
+                // Voer de detectie alleen uit als frameCounter een veelvoud van 50
+                if (frameCounter % 50 === 0) {
                     const imgTensor = tf.browser.fromPixels(videoElement).expandDims(0);
                     const predictions = await model.executeAsync(imgTensor);
 
