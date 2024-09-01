@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Toegang</title>
+</head>
+<body>
+    <h1>Camera Toegang</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    
+    <script>
+        // Controleer of getUserMedia beschikbaar is
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                var video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function(err) {
+                console.log("Er is een fout opgetreden: " + err);
+            });
+        } else {
+            alert("Sorry, jouw browser ondersteunt geen toegang tot de camera.");
+        }
+    </script>
+</body>
+</html>
+    
